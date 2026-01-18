@@ -64,3 +64,20 @@ input, textarea {
   height: auto;
   margin: 0 auto 15px; /* centers it + space below */
 }
+
+@media (max-width: 600px) {
+  .checkbox-row {
+    justify-content: flex-start;
+    gap: 12px;
+  }
+
+  .checkbox-row input[type="checkbox"] {
+    order: -1;
+  }
+}
+
+@media (max-width: 600px) {
+  .checkbox-row {
+    padding: 8px 0;
+  }
+}
