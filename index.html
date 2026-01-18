@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Mobile Oil & Auto Services</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<img src="images//IMG_3409.jpeg" alt="MOA Mobile Oil & Auto Services logo" class="logo">
+
+<h1>Mobile Oil & Auto Services</h1>
+<p>Request a Mobile Service Quote:</p>
+
+<form action="https://formspree.io/f/xjggkdwd" method="POST">
+
+ <h2>Contact Information</h2>
+
+  <label>Name *</label>
+  <input type="text" name="customer_name" required>
+
+  <label>Phone *</label>
+  <input type="tel" name="phone" required>
+
+  <label>Email *</label>
+  <input type="email" name="_replyto" required>
+
+  <label>Address *</label>
+  <input type="text" name="address" required>
+
+  <label>Preferred Method of Contact *</label>
+  <input type="text" name="Preferred Method of Contact" required>
+ 
+  <h2>Vehicle Information</h2>
+
+  <label>Year *</label>
+  <input type="text" name="year" required>
+
+  <label>Make *</label>
+  <input type="text" name="make" required>
+
+  <label>Model *</label>
+  <input type="text" name="model" required>
+
+  <label>Trim *</label>
+  <input type="text" name="trim" required>
+
+    <label>VIN Number</label>
+  <input type="text" name="mileage">
+  
+  <label>Mileage</label>
+  <input type="text" name="mileage">
+
+  <h2>Available Service Area</h2>
+
+  <label>Description of Available Service Area *</label>
+  <input type="text" name="Service Area" placeholder="Garage, Driveway, Parking Lot, Street" required> 
+
+  <h2>Requested Services</h2>
+
+<div class="checkbox-row">
+  <label>Oil + Filter Change + Fluid Check</label>
+  <input type="checkbox" name="services[]" value="Oil + Filter Change / Fluid Check">
+</div>
+
+<p>Once Submitted, We Will Contact You Via Your Preferred Method of Contact</p>
+
+  <button type="submit" class="submit-btn">Request Quote</button>
+
+</form>
+
+</body>
+</html>
+
+
+
+

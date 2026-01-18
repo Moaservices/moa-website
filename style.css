@@ -1,0 +1,66 @@
+body {
+  font-family: Arial, sans-serif;
+  max-width: 700px;
+  margin: 40px auto;
+  padding: 20px;
+}
+
+h1 {
+  color: #d70b0e;
+}
+
+h2 {
+  margin-top: 30px;
+}
+
+label {
+  display: block;
+  margin-top: 15px;
+  font-weight: bold;
+}
+
+input, textarea {
+  width: 100%;
+  padding: 10px;
+  margin-top: 5px;
+}
+
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 400px; /* adjust if you want wider */
+  margin-bottom: 10px;
+}
+
+.checkbox-row label {
+  margin: 0;
+  font-weight: normal;
+}
+
+.checkbox-row input[type="checkbox"] {
+  margin: 0;
+}
+
+.submit-btn {
+  margin-top: 20px;
+  padding: 12px;
+  width: 100%;
+  background: #198754;
+  color: white;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.submit-btn:hover {
+  background: #157347;
+}
+
+.logo {
+  display: block;
+  max-width: 320px;   /* adjust bigger/smaller */
+  width: 100%;
+  height: auto;
+  margin: 0 auto 15px; /* centers it + space below */
+}
