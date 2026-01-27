@@ -492,6 +492,7 @@
   const canvas = document.getElementById("sig");
   const ctx = canvas.getContext("2d");
   let drawing = false;
+  let lastSigDataUrl = null;
 
   function resizeCanvas() {
     const rect = canvas.getBoundingClientRect();
@@ -503,11 +504,26 @@
     ctx.lineCap = "round";
     ctx.strokeStyle = "#111";
   }
-  window.addEventListener("resize", () => {
-    // Reset and resize; note: signature will clear on resize
-    ctx.setTransform(1,0,0,1,0,0);
-    resizeCanvas();
-  });
+window.addEventListener("resize", () => {
+  // Save current signature before resizing (resizing clears canvas)
+  if (!lastSigDataUrl) {
+    lastSigDataUrl = canvas.toDataURL("image/png");
+  }
+
+  ctx.setTransform(1,0,0,1,0,0);
+  resizeCanvas();
+
+  // Restore signature after resize
+  if (lastSigDataUrl && lastSigDataUrl.length > 50) {
+    const img = new Image();
+    img.onload = () => {
+      const rect = canvas.getBoundingClientRect();
+      ctx.drawImage(img, 0, 0, rect.width, rect.height);
+    };
+    img.src = lastSigDataUrl;
+  }
+});
+
   resizeCanvas();
 
   function getPos(e) {
@@ -546,9 +562,10 @@
   canvas.addEventListener("touchmove", draw, { passive: false });
   window.addEventListener("touchend", endDraw, { passive: false });
 
-  function clearSignature() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-  }
+function clearSignature() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  lastSigDataUrl = null;
+}
 
 // ---------- Full-screen signature mode ----------
 const sigModal = document.getElementById("sigModal");
@@ -600,6 +617,7 @@ function openSigModal() {
 
 function closeSigModal() {
   copyModalToMain();
+  lastSigDataUrl = canvas.toDataURL("image/png"); // <- important for mobile rotate
   sigModal.classList.remove("open");
   sigModal.setAttribute("aria-hidden", "true");
 }
