@@ -154,6 +154,69 @@
       .box { border: 1px solid #999; }
       canvas { border: 1px solid #999; }
     }
+
+    /* ---------- Mobile layout fixes ---------- */
+@media (max-width: 700px) {
+  body { padding: 12px; }
+
+  .sheet { padding: 12px; }
+
+  .top { grid-template-columns: 1fr; }
+
+  .grid2 { grid-template-columns: 1fr; }
+
+  .totals { grid-template-columns: 1fr; }
+
+  /* Make the item table usable on phones */
+  table { display: block; overflow-x: auto; white-space: nowrap; }
+
+  /* Signature area stacks nicely */
+  .sig-wrap { grid-template-columns: 1fr; }
+
+  canvas { height: 180px; }
+}
+
+/* ---------- Full-screen signature modal ---------- */
+.sig-modal {
+  position: fixed;
+  inset: 0;
+  background: #fff;
+  display: none;
+  z-index: 9999;
+}
+
+.sig-modal.open { display: block; }
+
+.sig-modal-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.sig-modal-canvas-wrap {
+  height: calc(100vh - 110px);
+  padding: 12px;
+}
+
+#sigModalCanvas {
+  width: 100%;
+  height: 100%;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #fff;
+  touch-action: none;
+}
+
+.sig-modal-hint {
+  padding: 8px 12px;
+  font-size: 12px;
+  color: var(--muted);
+  border-top: 1px solid var(--border);
+}
+
+
   </style>
 </head>
 
@@ -166,6 +229,7 @@
     <button class="btn" onclick="loadDraft()">Load Draft</button>
     <button class="btn danger" onclick="clearDraft()">Clear Saved Draft</button>
     <button class="btn primary" onclick="window.print()">Print / Save PDF</button>
+    <button class="btn primary" type="button" onclick="openSigModal()">Sign Full Screen</button>
   </div>
 
   <div class="sheet">
@@ -259,7 +323,7 @@
       <tbody id="itemsBody">
         <tr>
           <td><input class="desc" placeholder="Service" /></td>
-            <td><input class="parts" placeholder="0.00" inputmode="decimal" /></td
+          <td><input class="parts" placeholder="0.00" inputmode="decimal" /></td
           <td><input class="labor" placeholder="0.00" inputmode="decimal" /></td>
           <td class="num"><input class="qty" value="1" inputmode="numeric" /></td>
           <td class="num"><span class="lineTotal">$0.00</span> <button class="btn" type="button" onclick="removeRow(this)">Remove</button></td>
@@ -562,6 +626,118 @@
       img.src = data.sig;
     }
 
+// ---------- Full-screen signature mode ----------
+const sigModal = document.getElementById("sigModal");
+const modalCanvas = document.getElementById("sigModalCanvas");
+const modalCtx = modalCanvas.getContext("2d");
+
+// Resize helper for modal canvas
+function resizeModalCanvas() {
+  const rect = modalCanvas.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  modalCanvas.width = Math.floor(rect.width * dpr);
+  modalCanvas.height = Math.floor(rect.height * dpr);
+  modalCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  modalCtx.lineWidth = 2;
+  modalCtx.lineCap = "round";
+  modalCtx.strokeStyle = "#111";
+}
+
+// Copy main canvas -> modal
+function copyMainToModal() {
+  resizeModalCanvas();
+  const img = new Image();
+  img.onload = () => {
+    // draw main signature into modal canvas
+    const rect = modalCanvas.getBoundingClientRect();
+    modalCtx.clearRect(0, 0, modalCanvas.width, modalCanvas.height);
+    modalCtx.drawImage(img, 0, 0, rect.width, rect.height);
+  };
+  img.src = canvas.toDataURL("image/png");
+}
+
+// Copy modal -> main
+function copyModalToMain() {
+  const img = new Image();
+  img.onload = () => {
+    // draw modal signature back onto main canvas
+    const rect = canvas.getBoundingClientRect();
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(img, 0, 0, rect.width, rect.height);
+  };
+  img.src = modalCanvas.toDataURL("image/png");
+}
+
+function openSigModal() {
+  sigModal.classList.add("open");
+  sigModal.setAttribute("aria-hidden", "false");
+  copyMainToModal();
+}
+
+function closeSigModal() {
+  copyModalToMain();
+  sigModal.classList.remove("open");
+  sigModal.setAttribute("aria-hidden", "true");
+}
+
+// Modal drawing (same idea as main canvas)
+let modalDrawing = false;
+
+function modalPos(e) {
+  const rect = modalCanvas.getBoundingClientRect();
+  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+  const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+  return { x: clientX - rect.left, y: clientY - rect.top };
+}
+
+function modalStart(e) {
+  modalDrawing = true;
+  const p = modalPos(e);
+  modalCtx.beginPath();
+  modalCtx.moveTo(p.x, p.y);
+  e.preventDefault();
+}
+
+function modalMove(e) {
+  if (!modalDrawing) return;
+  const p = modalPos(e);
+  modalCtx.lineTo(p.x, p.y);
+  modalCtx.stroke();
+  e.preventDefault();
+}
+
+function modalEnd(e) {
+  modalDrawing = false;
+  e.preventDefault();
+}
+
+modalCanvas.addEventListener("mousedown", modalStart);
+modalCanvas.addEventListener("mousemove", modalMove);
+window.addEventListener("mouseup", modalEnd);
+
+modalCanvas.addEventListener("touchstart", modalStart, { passive: false });
+modalCanvas.addEventListener("touchmove", modalMove, { passive: false });
+window.addEventListener("touchend", modalEnd, { passive: false });
+
+// Auto-open full-screen signature on landscape phones
+function isPhoneLandscape() {
+  return window.matchMedia("(max-width: 900px) and (orientation: landscape)").matches;
+}
+
+window.addEventListener("orientationchange", () => {
+  // Wait a moment for the browser to re-layout
+  setTimeout(() => {
+    if (isPhoneLandscape()) openSigModal();
+  }, 250);
+});
+
+window.addEventListener("resize", () => {
+  if (sigModal.classList.contains("open")) {
+    copyMainToModal(); // re-fit on resize
+  }
+});
+
+
     recalc();
     alert("Draft loaded.");
   }
@@ -577,6 +753,23 @@
   // Initial calc
 recalc();
 </script>
+
+<div id="sigModal" class="sig-modal" aria-hidden="true">
+  <div class="sig-modal-bar">
+    <strong>Sign Here</strong>
+    <div style="display:flex; gap:10px;">
+      <button class="btn" type="button" onclick="clearSignature()">Clear</button>
+      <button class="btn primary" type="button" onclick="closeSigModal()">Done</button>
+    </div>
+  </div>
+
+  <div class="sig-modal-canvas-wrap">
+    <canvas id="sigModalCanvas"></canvas>
+  </div>
+
+  <div class="sig-modal-hint">Rotate back to portrait or tap Done when finished.</div>
+</div>
+
 
 </body>
 </html>
