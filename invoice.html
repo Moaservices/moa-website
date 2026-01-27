@@ -220,6 +220,22 @@
   </style>
 </head>
 
+<div id="sigModal" class="sig-modal" aria-hidden="true">
+  <div class="sig-modal-bar">
+    <strong>Sign Here</strong>
+    <div style="display:flex; gap:10px;">
+      <button class="btn" type="button" onclick="clearSignature()">Clear</button>
+      <button class="btn primary" type="button" onclick="closeSigModal()">Done</button>
+    </div>
+  </div>
+
+  <div class="sig-modal-canvas-wrap">
+    <canvas id="sigModalCanvas"></canvas>
+  </div>
+
+  <div class="sig-modal-hint">Rotate back to portrait or tap Done when finished.</div>
+</div>
+
 <body>
 
   <div class="toolbar">
@@ -534,98 +550,6 @@
     ctx.clearRect(0, 0, canvas.width, canvas.height);
   }
 
-  // Save/Load draft to browser (per device)
-  function saveDraft() {
-    const data = {
-      invoiceNo: v("invoiceNo"),
-      invoiceDate: v("invoiceDate"),
-      status: v("status"),
-      due: v("due"),
-      custName: v("custName"),
-      custPhone: v("custPhone"),
-      custEmail: v("custEmail"),
-      custAddress: v("custAddress"),
-      vehicle: v("vehicle"),
-      trim: v("trim"),
-      vin: v("vin"),
-      mileage: v("mileage"),
-      notes: v("notes"),
-      taxRate: v("taxRate"),
-      fee: v("fee"),
-      sigName: v("sigName"),
-      sigDate: v("sigDate"),
-      tech: v("tech"),
-      items: Array.from(document.querySelectorAll("#itemsBody tr")).map(row => ({
-        desc: row.querySelector(".desc").value,
-        parts: row.querySelector(".parts").value,
-        labor: row.querySelector(".labor").value,
-        qty: row.querySelector(".qty").value
-      })),
-      sig: canvas.toDataURL("image/png")
-    };
-    localStorage.setItem("moa_invoice_draft", JSON.stringify(data));
-    alert("Draft saved on this device.");
-  }
-
-  function loadDraft() {
-    const raw = localStorage.getItem("moa_invoice_draft");
-    if (!raw) { alert("No saved draft found on this device."); return; }
-    const data = JSON.parse(raw);
-
-    set("invoiceNo", data.invoiceNo);
-    set("invoiceDate", data.invoiceDate);
-    set("status", data.status);
-    set("due", data.due);
-
-    set("custName", data.custName);
-    set("custPhone", data.custPhone);
-    set("custEmail", data.custEmail);
-    set("custAddress", data.custAddress);
-
-    set("vehicle", data.vehicle);
-    set("trim", data.trim);
-    set("vin", data.vin);
-    set("mileage", data.mileage);
-
-    set("notes", data.notes);
-    set("taxRate", data.taxRate);
-    set("fee", data.fee);
-
-    set("sigName", data.sigName);
-    set("sigDate", data.sigDate);
-    set("tech", data.tech);
-
-    // Rebuild items
-    const body = document.getElementById("itemsBody");
-    body.innerHTML = "";
-    data.items.forEach(it => {
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td><input class="desc" placeholder="Service description" /></td>
-        <td><input class="parts" placeholder="0.00" inputmode="decimal" /></td>
-        <td><input class="labor" placeholder="0.00" inputmode="decimal" /></td>
-        <td class="num"><input class="qty" value="1" inputmode="numeric" /></td>
-        <td class="num"><span class="lineTotal">$0.00</span> <button class="btn" type="button" onclick="removeRow(this)">Remove</button></td>
-      `;
-      tr.querySelector(".desc").value = it.desc || "";
-      tr.querySelector(".parts").value = it.parts || "";
-      tr.querySelector(".labor").value = it.labor || "";
-      tr.querySelector(".qty").value = it.qty || "1";
-      body.appendChild(tr);
-    });
-
-    // Restore signature image
-    if (data.sig) {
-      const img = new Image();
-      img.onload = () => {
-        clearSignature();
-        // draw image scaled to canvas css size
-        const rect = canvas.getBoundingClientRect();
-        ctx.drawImage(img, 0, 0, rect.width, rect.height);
-      };
-      img.src = data.sig;
-    }
-
 // ---------- Full-screen signature mode ----------
 const sigModal = document.getElementById("sigModal");
 const modalCanvas = document.getElementById("sigModalCanvas");
@@ -737,6 +661,97 @@ window.addEventListener("resize", () => {
   }
 });
 
+  // Save/Load draft to browser (per device)
+  function saveDraft() {
+    const data = {
+      invoiceNo: v("invoiceNo"),
+      invoiceDate: v("invoiceDate"),
+      status: v("status"),
+      due: v("due"),
+      custName: v("custName"),
+      custPhone: v("custPhone"),
+      custEmail: v("custEmail"),
+      custAddress: v("custAddress"),
+      vehicle: v("vehicle"),
+      trim: v("trim"),
+      vin: v("vin"),
+      mileage: v("mileage"),
+      notes: v("notes"),
+      taxRate: v("taxRate"),
+      fee: v("fee"),
+      sigName: v("sigName"),
+      sigDate: v("sigDate"),
+      tech: v("tech"),
+      items: Array.from(document.querySelectorAll("#itemsBody tr")).map(row => ({
+        desc: row.querySelector(".desc").value,
+        parts: row.querySelector(".parts").value,
+        labor: row.querySelector(".labor").value,
+        qty: row.querySelector(".qty").value
+      })),
+      sig: canvas.toDataURL("image/png")
+    };
+    localStorage.setItem("moa_invoice_draft", JSON.stringify(data));
+    alert("Draft saved on this device.");
+  }
+
+  function loadDraft() {
+    const raw = localStorage.getItem("moa_invoice_draft");
+    if (!raw) { alert("No saved draft found on this device."); return; }
+    const data = JSON.parse(raw);
+
+    set("invoiceNo", data.invoiceNo);
+    set("invoiceDate", data.invoiceDate);
+    set("status", data.status);
+    set("due", data.due);
+
+    set("custName", data.custName);
+    set("custPhone", data.custPhone);
+    set("custEmail", data.custEmail);
+    set("custAddress", data.custAddress);
+
+    set("vehicle", data.vehicle);
+    set("trim", data.trim);
+    set("vin", data.vin);
+    set("mileage", data.mileage);
+
+    set("notes", data.notes);
+    set("taxRate", data.taxRate);
+    set("fee", data.fee);
+
+    set("sigName", data.sigName);
+    set("sigDate", data.sigDate);
+    set("tech", data.tech);
+
+    // Rebuild items
+    const body = document.getElementById("itemsBody");
+    body.innerHTML = "";
+    data.items.forEach(it => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td><input class="desc" placeholder="Service description" /></td>
+        <td><input class="parts" placeholder="0.00" inputmode="decimal" /></td>
+        <td><input class="labor" placeholder="0.00" inputmode="decimal" /></td>
+        <td class="num"><input class="qty" value="1" inputmode="numeric" /></td>
+        <td class="num"><span class="lineTotal">$0.00</span> <button class="btn" type="button" onclick="removeRow(this)">Remove</button></td>
+      `;
+      tr.querySelector(".desc").value = it.desc || "";
+      tr.querySelector(".parts").value = it.parts || "";
+      tr.querySelector(".labor").value = it.labor || "";
+      tr.querySelector(".qty").value = it.qty || "1";
+      body.appendChild(tr);
+    });
+
+    // Restore signature image
+    if (data.sig) {
+      const img = new Image();
+      img.onload = () => {
+        clearSignature();
+        // draw image scaled to canvas css size
+        const rect = canvas.getBoundingClientRect();
+        ctx.drawImage(img, 0, 0, rect.width, rect.height);
+      };
+      img.src = data.sig;
+    }
 
     recalc();
     alert("Draft loaded.");
