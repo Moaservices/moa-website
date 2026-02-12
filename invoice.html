@@ -3,806 +3,289 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Mobile Oil and Auto Services Invoice / Receipt</title>
+  <title>Mobile Oil and Auto Invoice / Receipt</title>
   <style>
-    :root { --border:#d0d7de; --muted:#6b7280; }
+    :root { --border:#d0d7de; --muted:#6b7280; --brand:#d70b0e; }
 
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 20px;
-      background: #fff;
-      color: #111;
+    body{ font-family: Arial, sans-serif; margin:0; padding:16px; background:#fff; color:#111; }
+    .wrap{ max-width:850px; margin:0 auto; }
+    h1{ margin:0 0 4px 0; font-size:22px; color:var(--brand); }
+    .muted{ color:var(--muted); font-size:13px; }
+    .bar{ display:flex; gap:10px; flex-wrap:wrap; margin:12px 0; }
+    .btn{ border:1px solid var(--border); background:#f8fafc; padding:10px 12px; border-radius:6px; cursor:pointer; font-size:14px; }
+    .btn.primary{ background:#0b5ed7; border-color:#0b5ed7; color:#fff; }
+
+    .card{ border:1px solid var(--border); border-radius:10px; padding:14px; }
+    .grid{ display:grid; grid-template-columns: 1fr 1fr; gap:10px; }
+    label{ display:block; font-weight:700; font-size:13px; margin-bottom:4px; }
+    input, textarea{ width:100%; box-sizing:border-box; padding:9px; border:1px solid var(--border); border-radius:6px; font-size:14px; }
+    textarea{ min-height:70px; resize:vertical; }
+
+    table{ width:100%; border-collapse:collapse; margin-top:10px; }
+    th,td{ border:1px solid var(--border); padding:8px; vertical-align:top; }
+    th{ background:#f8fafc; text-align:left; }
+    td.num, th.num{ text-align:right; white-space:nowrap; }
+
+    .totals{ display:grid; grid-template-columns: 1fr 280px; gap:10px; margin-top:10px; align-items:start; }
+    .line{ display:flex; justify-content:space-between; gap:12px; margin:6px 0; font-size:14px; }
+    .line strong{ font-size:15px; }
+
+    .sig{ margin-top:12px; }
+    .sigline{ border-bottom:1px solid #111; height:28px; margin-top:18px; }
+    .siggrid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+
+    /* Mobile */
+    @media (max-width: 700px){
+      body{ padding:12px; }
+      .grid{ grid-template-columns:1fr; }
+      .totals{ grid-template-columns:1fr; }
+      table{ display:block; overflow-x:auto; white-space:nowrap; }
+      .siggrid{ grid-template-columns:1fr; }
     }
 
-    .toolbar {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-bottom: 14px;
+    /* Print */
+    @media print{
+      body{ padding:0; }
+      .bar{ display:none; }
+      input, textarea{ border:none; padding:0; }
+      .card{ border:none; padding:0; }
+      th,td{ border:1px solid #999; }
     }
-    .btn {
-      border: 1px solid var(--border);
-      background: #f8fafc;
-      padding: 10px 12px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 14px;
-    }
-    .btn.primary {
-      background: #0b5ed7;
-      color: #fff;
-      border-color: #0b5ed7;
-    }
-    .btn.danger {
-      background: #fff5f5;
-      border-color: #fecaca;
-    }
-
-    .sheet {
-      max-width: 850px;
-      margin: 0 auto;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 18px;
-    }
-
-    .top {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px;
-      align-items: start;
-    }
-
-    h1 {
-      margin: 0 0 6px 0;
-      font-size: 22px;
-      color: #d70b0e;
-    }
-
-    .muted { color: var(--muted); font-size: 13px; }
-
-    .box {
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 12px;
-    }
-
-    .grid2 {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-
-    label { display:block; font-weight: bold; font-size: 13px; margin-bottom: 4px; }
-    input, textarea {
-      width: 100%;
-      box-sizing: border-box;
-      padding: 9px;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      font-size: 14px;
-    }
-    textarea { min-height: 70px; resize: vertical; }
-
-    .section-title {
-      margin: 16px 0 8px;
-      font-size: 15px;
-      font-weight: bold;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 14px;
-    }
-    th, td {
-      border: 1px solid var(--border);
-      padding: 8px;
-      vertical-align: top;
-    }
-    th { background: #f8fafc; text-align: left; }
-    td.num, th.num { text-align: right; white-space: nowrap; }
-
-    .totals {
-      margin-top: 10px;
-      display: grid;
-      grid-template-columns: 1fr 320px;
-      gap: 10px;
-      align-items: start;
-    }
-
-    .totals .box { padding: 12px; }
-    .line {
-      display:flex;
-      justify-content: space-between;
-      gap: 12px;
-      margin: 6px 0;
-      font-size: 14px;
-    }
-    .line strong { font-size: 15px; }
-
-    .sig-wrap {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-
-.auth-text {
-  margin: 0;
-  font-size: 14px;
-  line-height: 1.35;
-}
-
-    canvas {
-      width: 100%;
-      height: 140px;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      background: #fff;
-      touch-action: none;
-    }
-
-    .small { font-size: 12px; color: var(--muted); }
-
-    /* Print styling */
-    @media print {
-      body { padding: 0; }
-      .toolbar { display: none; }
-      .sheet { border: none; padding: 0; }
-      input, textarea { border: none; padding: 0; }
-      .box { border: 1px solid #999; }
-      canvas { border: 1px solid #999; }
-    }
-
-    /* ---------- Mobile layout fixes ---------- */
-@media (max-width: 700px) {
-  body { padding: 12px; }
-
-  .sheet { padding: 12px; }
-
-  .top { grid-template-columns: 1fr; }
-
-  .grid2 { grid-template-columns: 1fr; }
-
-  .totals { grid-template-columns: 1fr; }
-
-  /* Make the item table usable on phones */
-  table { display: block; overflow-x: auto; white-space: nowrap; }
-
-  /* Signature area stacks nicely */
-  .sig-wrap { grid-template-columns: 1fr; }
-
-  canvas { height: 180px; }
-}
-
-/* ---------- Full-screen signature modal ---------- */
-.sig-modal {
-  position: fixed;
-  inset: 0;
-  background: #fff;
-  display: none;
-  z-index: 9999;
-}
-
-.sig-modal.open { display: block; }
-
-.sig-modal-bar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 12px;
-  border-bottom: 1px solid var(--border);
-}
-
-.sig-modal-canvas-wrap {
-  height: calc(100vh - 110px);
-  padding: 12px;
-}
-
-#sigModalCanvas {
-  width: 100%;
-  height: 100%;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: #fff;
-  touch-action: none;
-}
-
-.sig-modal-hint {
-  padding: 8px 12px;
-  font-size: 12px;
-  color: var(--muted);
-  border-top: 1px solid var(--border);
-}
-
-
   </style>
 </head>
 
-<div id="sigModal" class="sig-modal" aria-hidden="true">
-  <div class="sig-modal-bar">
-    <strong>Sign Here</strong>
-    <div style="display:flex; gap:10px;">
-      <button class="btn" type="button" onclick="clearSignature()">Clear</button>
-      <button class="btn primary" type="button" onclick="closeSigModal()">Done</button>
-    </div>
-  </div>
-
-  <div class="sig-modal-canvas-wrap">
-    <canvas id="sigModalCanvas"></canvas>
-  </div>
-
-  <div class="sig-modal-hint">Rotate back to portrait or tap Done when finished.</div>
-</div>
-
 <body>
+<div class="wrap">
 
-  <div class="toolbar">
-    <button class="btn" onclick="addLineItem()">+ Add Line Item</button>
-    <button class="btn" onclick="clearSignature()">Clear Signature</button>
-    <button class="btn" onclick="saveDraft()">Save Draft</button>
-    <button class="btn" onclick="loadDraft()">Load Draft</button>
-    <button class="btn danger" onclick="clearDraft()">Clear Saved Draft</button>
-    <button class="btn primary" onclick="window.print()">Print / Save PDF</button>
-    <button class="btn primary" type="button" onclick="openSigModal()">Sign Full Screen</button>
+  <div class="bar">
+    <button class="btn" type="button" onclick="addRow()">+ Add Line</button>
+    <button class="btn" type="button" onclick="window.print()">Print / Save PDF</button>
+    <button class="btn primary" type="button" onclick="saveDraft()">Save Draft</button>
+    <button class="btn" type="button" onclick="loadDraft()">Load Draft</button>
+    <button class="btn" type="button" onclick="clearDraft()">Clear Draft</button>
   </div>
 
-  <div class="sheet">
-    <div class="top">
+  <div class="card">
+    <h1>Mobile Oil & Auto Services</h1>
+    <div class="muted">Invoice / Receipt</div>
+
+    <div class="grid" style="margin-top:10px;">
       <div>
-        <h1>Mobile Oil & Auto Services</h1>
-        <div class="muted">Mobile service • Oil changes • Light repairs</div>
-        <div class="muted" style="margin-top:6px;">
-          Phone: <span contenteditable="true">(763) 445-9650</span><br/>
-          Email: <span contenteditable="true">your@email.com</span>
-        </div>
+        <label>Invoice #</label>
+        <input id="invoiceNo" />
+      </div>
+      <div>
+        <label>Date</label>
+        <input id="date" type="date" />
       </div>
 
-      <div class="box">
-        <div class="grid2">
-          <div>
-            <label>Invoice #</label>
-            <input id="invoiceNo" placeholder="MOA-0001" />
-          </div>
-          <div>
-            <label>Date</label>
-            <input id="invoiceDate" type="date" />
-          </div>
-          <div>
-            <label>Status</label>
-            <input id="status" placeholder="Quote / Final Invoice  / Receipt" />
-          </div>
-          <div>
-            <label>Due</label>
-            <input id="due" placeholder="Upon completion" />
-          </div>
-        </div>
+      <div>
+        <label>Customer Name</label>
+        <input id="custName" />
+      </div>
+      <div>
+        <label>Phone</label>
+        <input id="custPhone" />
+      </div>
+
+      <div>
+        <label>Vehicle (Year/Make/Model)</label>
+        <input id="vehicle" />
+      </div>
+      <div>
+        <label>Mileage</label>
+        <input id="mileage" />
       </div>
     </div>
 
-    <div class="section-title">Customer</div>
-    <div class="box">
-      <div class="grid2">
-        <div>
-          <label>Name</label>
-          <input id="custName" />
-        </div>
-        <div>
-          <label>Phone</label>
-          <input id="custPhone" />
-        </div>
-        <div>
-          <label>Email</label>
-          <input id="custEmail" />
-        </div>
-        <div>
-          <label>Service Address</label>
-          <input id="custAddress" />
-        </div>
-      </div>
-    </div>
-
-    <div class="section-title">Vehicle</div>
-    <div class="box">
-      <div class="grid2">
-        <div>
-          <label>Year / Make / Model</label>
-          <input id="vehicle" placeholder="2017 Toyota Camry" />
-        </div>
-        <div>
-          <label>Trim</label>
-          <input id="trim" placeholder="SE / XLE / etc." />
-        </div>
-        <div>
-          <label>VIN</label>
-          <input id="vin" />
-        </div>
-        <div>
-          <label>Mileage</label>
-          <input id="mileage" />
-        </div>
-      </div>
-    </div>
-
-    <div class="section-title">Itemized Work</div>
-    <table id="itemsTable">
+    <table>
       <thead>
         <tr>
-          <th style="width: 42%;">Description</th>
-          <th style="width: 18%;">Parts</th>
-          <th style="width: 18%;">Labor</th>
-          <th class="num" style="width: 12%;">Qty</th>
-          <th class="num" style="width: 10%;">Line Total</th>
+          <th style="width:55%;">Service / Description</th>
+          <th class="num" style="width:15%;">Qty</th>
+          <th class="num" style="width:15%;">Rate</th>
+          <th class="num" style="width:15%;">Line Total</th>
         </tr>
       </thead>
-      <tbody id="itemsBody">
+      <tbody id="items">
         <tr>
-          <td><input class="desc" placeholder="Service" /></td>
-          <td><input class="parts" placeholder="0.00" inputmode="decimal" /></td>
-          <td><input class="labor" placeholder="0.00" inputmode="decimal" /></td>
-          <td class="num"><input class="qty" value="1" inputmode="numeric" /></td>
+          <td><input class="desc" /></td>
+          <td class="num"><input class="qty" inputmode="numeric" /></td>
+          <td class="num"><input class="rate" inputmode="decimal" /></td>
           <td class="num"><span class="lineTotal">$0.00</span> <button class="btn" type="button" onclick="removeRow(this)">Remove</button></td>
         </tr>
       </tbody>
     </table>
 
     <div class="totals">
-<div class="box">
-        <label>Notes / Warranty / Terms</label>
-        <textarea id="notes" placeholder="Invoice Notes"></textarea>
+      <div>
+        <label>Notes</label>
+        <textarea id="notes" ></textarea>
       </div>
 
-      <div class="box">
+      <div>
         <div class="line"><span>Subtotal</span><span id="subtotal">$0.00</span></div>
 
         <div class="line">
           <span>Tax %</span>
-          <span>
-            <input id="taxRate" value="0" inputmode="decimal" style="width:90px; text-align:right;" />
-          </span>
+          <span><input id="taxRate" inputmode="decimal" style="width:90px; text-align:right;"></span>
         </div>
 
-        <div class="line"><span>Tax</span><span id="taxAmt">$0.00</span></div>
+        <div class="line"><span>Tax</span><span id="tax">$0.00</span></div>
 
         <div class="line">
-          <span>Travel / Service Fee</span>
-          <span>
-            <input id="fee" value="0" inputmode="decimal" style="width:120px; text-align:right;" />
-          </span>
+          <span>Travel / Fee</span>
+          <span><input id="fee" inputmode="decimal" style="width:120px; text-align:right;"></span>
+        </div>
+
+        <div class="line">
+          <span>Discount</span>
+          <span><input id="discount" inputmode="decimal" style="width:120px; text-align:right;"></span>
         </div>
 
         <div class="line"><strong>Total</strong><strong id="total">$0.00</strong></div>
-
       </div>
     </div>
 
-<div class="section-title">Authorization to Repair & Payment Agreement</div>
-<div class="box">
-  <p class="auth-text">
-    I authorize <strong>Mobile Oil & Auto Services</strong> to perform the services listed on this invoice/estimate.
-    I understand that additional repairs may be necessary once the vehicle is inspected and that I will be contacted for
-    approval before any additional charges are added. I agree to pay the <strong>Total Amount Due</strong> shown on this invoice
-    upon completion of services, unless other arrangements are made in writing. I understand that failure to pay may result
-    in collection actions as allowed by law.
-  </p>
+    <div class="sig">
+      <div style="font-weight:700; margin-top:10px;">Authorization & Payment Agreement</div>
+      <div class="muted" style="margin-top:6px; line-height:1.35;">
+        I authorize Mobile Oil & Auto Services to perform the services listed above and agree to pay the Total shown on this invoice upon completion, unless otherwise agreed in writing.
+      </div>
 
-  <div class="sig-wrap" style="margin-top: 12px;">
-    <div>
-      <label>Customer Signature</label>
-      <canvas id="sig"></canvas>
-      <div class="small">Sign with finger/mouse. Use “Clear Signature” if needed.</div>
+      <div class="siggrid">
+        <div>
+          <div class="sigline"></div>
+          <div class="muted">Customer Signature</div>
+        </div>
+        <div>
+          <div class="sigline"></div>
+          <div class="muted">Date</div>
+        </div>
+      </div>
     </div>
-    <div>
-      <label>Print Name</label>
-      <input id="sigName" placeholder="Customer name" />
 
-      <label style="margin-top:12px;">Approval Date</label>
-      <input id="sigDate" type="date" />
-
-      <label style="margin-top:12px;">Technician</label>
-      <input id="tech" placeholder="MOA" />
-    </div>
   </div>
-
-  <p class="small" style="margin-top: 10px;">
-    Note: This authorization applies only to the services and totals listed above at the time of signing.
-  </p>
 </div>
 
-  </div>
-
 <script>
-  // Helpers
-  function money(n) {
-    const num = isFinite(n) ? n : 0;
-    return "$" + num.toFixed(2);
-  }
-  function parseMoney(val) {
-    if (!val) return 0;
-    const cleaned = String(val).replace(/[^0-9.-]/g, "");
-    const n = parseFloat(cleaned);
-    return isFinite(n) ? n : 0;
-  }
+  function money(n){ n = Number(n)||0; return "$" + n.toFixed(2); }
+  function num(v){ return Number(String(v||"").replace(/[^0-9.-]/g,"")) || 0; }
 
-  // Auto dates
-  const today = new Date();
-  const iso = today.toISOString().slice(0,10);
-  document.getElementById("invoiceDate").value = iso;
-  document.getElementById("sigDate").value = iso;
+  // Auto-date
+  document.getElementById("date").value = new Date().toISOString().slice(0,10);
 
-  // Line item calculations
-  function recalc() {
-    const rows = document.querySelectorAll("#itemsBody tr");
+  function recalc(){
     let subtotal = 0;
-
-    rows.forEach(row => {
-      const parts = parseMoney(row.querySelector(".parts").value);
-      const labor = parseMoney(row.querySelector(".labor").value);
-      const qty = parseFloat(row.querySelector(".qty").value) || 0;
-
-      const line = (parts + labor) * qty;
+    document.querySelectorAll("#items tr").forEach(row=>{
+      const qty = num(row.querySelector(".qty").value);
+      const rate = num(row.querySelector(".rate").value);
+      const line = qty * rate;
       row.querySelector(".lineTotal").textContent = money(line);
       subtotal += line;
     });
 
-    const taxRate = parseMoney(document.getElementById("taxRate").value) / 100;
-    const fee = parseMoney(document.getElementById("fee").value);
+     const taxRate = num(document.getElementById("taxRate").value) / 100;
+     const fee = num(document.getElementById("fee").value);
+     const discount = num(document.getElementById("discount").value);
 
-    const taxAmt = subtotal * taxRate;
-    const total = subtotal + taxAmt + fee;
+     const tax = subtotal * taxRate;
+     const total = subtotal + tax + fee - discount;
 
     document.getElementById("subtotal").textContent = money(subtotal);
-    document.getElementById("taxAmt").textContent = money(taxAmt);
+    document.getElementById("tax").textContent = money(tax);
     document.getElementById("total").textContent = money(total);
   }
 
-  document.addEventListener("input", (e) => {
-    if (
-      e.target.classList.contains("parts") ||
-      e.target.classList.contains("labor") ||
-      e.target.classList.contains("qty") ||
-      e.target.id === "taxRate" ||
-      e.target.id === "fee"
-    ) {
-      recalc();
-    }
+  document.addEventListener("input",(e)=>{
+    if (e.target.closest("#items") || e.target.id==="taxRate" || e.target.id==="fee" || e.target.id==="discount") recalc();
   });
 
-  function addLineItem() {
+  function addRow(){
     const tr = document.createElement("tr");
     tr.innerHTML = `
-      <td><input class="desc" placeholder="Service description" /></td>
-      <td><input class="parts" placeholder="0.00" inputmode="decimal" /></td>
-      <td><input class="labor" placeholder="0.00" inputmode="decimal" /></td>
-      <td class="num"><input class="qty" value="1" inputmode="numeric" /></td>
+      <td><input class="desc" /></td>
+      <td class="num"><input class="qty" inputmode="numeric" /></td>
+      <td class="num"><input class="rate" inputmode="decimal" /></td>
       <td class="num"><span class="lineTotal">$0.00</span> <button class="btn" type="button" onclick="removeRow(this)">Remove</button></td>
     `;
-    document.getElementById("itemsBody").appendChild(tr);
+    document.getElementById("items").appendChild(tr);
     recalc();
   }
 
-  function removeRow(btn) {
-    const row = btn.closest("tr");
-    row.remove();
+  function removeRow(btn){
+    btn.closest("tr").remove();
     recalc();
   }
 
-  // Signature pad (simple)
-  const canvas = document.getElementById("sig");
-  const ctx = canvas.getContext("2d");
-  let drawing = false;
-  let lastSigDataUrl = null;
-
-  function resizeCanvas() {
-    const rect = canvas.getBoundingClientRect();
-    const dpr = window.devicePixelRatio || 1;
-    canvas.width = Math.floor(rect.width * dpr);
-    canvas.height = Math.floor(rect.height * dpr);
-    ctx.scale(dpr, dpr);
-    ctx.lineWidth = 2;
-    ctx.lineCap = "round";
-    ctx.strokeStyle = "#111";
-  }
-window.addEventListener("resize", () => {
-  // Save current signature before resizing (resizing clears canvas)
-  if (!lastSigDataUrl) {
-    lastSigDataUrl = canvas.toDataURL("image/png");
-  }
-
-  ctx.setTransform(1,0,0,1,0,0);
-  resizeCanvas();
-
-  // Restore signature after resize
-  if (lastSigDataUrl && lastSigDataUrl.length > 50) {
-    const img = new Image();
-    img.onload = () => {
-      const rect = canvas.getBoundingClientRect();
-      ctx.drawImage(img, 0, 0, rect.width, rect.height);
-    };
-    img.src = lastSigDataUrl;
-  }
-});
-
-  resizeCanvas();
-
-  function getPos(e) {
-    const rect = canvas.getBoundingClientRect();
-    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-    return { x: clientX - rect.left, y: clientY - rect.top };
-  }
-
-  function startDraw(e) {
-    drawing = true;
-    const p = getPos(e);
-    ctx.beginPath();
-    ctx.moveTo(p.x, p.y);
-    e.preventDefault();
-  }
-
-  function draw(e) {
-    if (!drawing) return;
-    const p = getPos(e);
-    ctx.lineTo(p.x, p.y);
-    ctx.stroke();
-    e.preventDefault();
-  }
-
-  function endDraw(e) {
-    drawing = false;
-    e.preventDefault();
-  }
-
-  canvas.addEventListener("mousedown", startDraw);
-  canvas.addEventListener("mousemove", draw);
-  window.addEventListener("mouseup", endDraw);
-
-  canvas.addEventListener("touchstart", startDraw, { passive: false });
-  canvas.addEventListener("touchmove", draw, { passive: false });
-  window.addEventListener("touchend", endDraw, { passive: false });
-
-function clearSignature() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  lastSigDataUrl = null;
-}
-
-// ---------- Full-screen signature mode ----------
-const sigModal = document.getElementById("sigModal");
-const modalCanvas = document.getElementById("sigModalCanvas");
-const modalCtx = modalCanvas.getContext("2d");
-
-// Resize helper for modal canvas
-function resizeModalCanvas() {
-  const rect = modalCanvas.getBoundingClientRect();
-  const dpr = window.devicePixelRatio || 1;
-  modalCanvas.width = Math.floor(rect.width * dpr);
-  modalCanvas.height = Math.floor(rect.height * dpr);
-  modalCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  modalCtx.lineWidth = 2;
-  modalCtx.lineCap = "round";
-  modalCtx.strokeStyle = "#111";
-}
-
-// Copy main canvas -> modal
-function copyMainToModal() {
-  resizeModalCanvas();
-  const img = new Image();
-  img.onload = () => {
-    // draw main signature into modal canvas
-    const rect = modalCanvas.getBoundingClientRect();
-    modalCtx.clearRect(0, 0, modalCanvas.width, modalCanvas.height);
-    modalCtx.drawImage(img, 0, 0, rect.width, rect.height);
-  };
-  img.src = canvas.toDataURL("image/png");
-}
-
-// Copy modal -> main
-function copyModalToMain() {
-  const img = new Image();
-  img.onload = () => {
-    // draw modal signature back onto main canvas
-    const rect = canvas.getBoundingClientRect();
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(img, 0, 0, rect.width, rect.height);
-  };
-  img.src = modalCanvas.toDataURL("image/png");
-}
-
-function openSigModal() {
-  sigModal.classList.add("open");
-  sigModal.setAttribute("aria-hidden", "false");
-  copyMainToModal();
-}
-
-function closeSigModal() {
-  copyModalToMain();
-  lastSigDataUrl = canvas.toDataURL("image/png"); // <- important for mobile rotate
-  sigModal.classList.remove("open");
-  sigModal.setAttribute("aria-hidden", "true");
-}
-
-// Modal drawing (same idea as main canvas)
-let modalDrawing = false;
-
-function modalPos(e) {
-  const rect = modalCanvas.getBoundingClientRect();
-  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-  const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-  return { x: clientX - rect.left, y: clientY - rect.top };
-}
-
-function modalStart(e) {
-  modalDrawing = true;
-  const p = modalPos(e);
-  modalCtx.beginPath();
-  modalCtx.moveTo(p.x, p.y);
-  e.preventDefault();
-}
-
-function modalMove(e) {
-  if (!modalDrawing) return;
-  const p = modalPos(e);
-  modalCtx.lineTo(p.x, p.y);
-  modalCtx.stroke();
-  e.preventDefault();
-}
-
-function modalEnd(e) {
-  modalDrawing = false;
-  e.preventDefault();
-}
-
-modalCanvas.addEventListener("mousedown", modalStart);
-modalCanvas.addEventListener("mousemove", modalMove);
-window.addEventListener("mouseup", modalEnd);
-
-modalCanvas.addEventListener("touchstart", modalStart, { passive: false });
-modalCanvas.addEventListener("touchmove", modalMove, { passive: false });
-window.addEventListener("touchend", modalEnd, { passive: false });
-
-// Auto-open full-screen signature on landscape phones
-function isPhoneLandscape() {
-  return window.matchMedia("(max-width: 900px) and (orientation: landscape)").matches;
-}
-
-window.addEventListener("orientationchange", () => {
-  // Wait a moment for the browser to re-layout
-  setTimeout(() => {
-    if (isPhoneLandscape()) openSigModal();
-  }, 250);
-});
-
-window.addEventListener("resize", () => {
-  if (sigModal.classList.contains("open")) {
-    copyMainToModal(); // re-fit on resize
-  }
-});
-
-  // Save/Load draft to browser (per device)
-  function saveDraft() {
+  // Draft save/load (per device)
+  function saveDraft(){
     const data = {
       invoiceNo: v("invoiceNo"),
-      invoiceDate: v("invoiceDate"),
-      status: v("status"),
-      due: v("due"),
+      date: v("date"),
       custName: v("custName"),
       custPhone: v("custPhone"),
-      custEmail: v("custEmail"),
-      custAddress: v("custAddress"),
       vehicle: v("vehicle"),
-      trim: v("trim"),
-      vin: v("vin"),
       mileage: v("mileage"),
       notes: v("notes"),
       taxRate: v("taxRate"),
       fee: v("fee"),
-      sigName: v("sigName"),
-      sigDate: v("sigDate"),
-      tech: v("tech"),
-      items: Array.from(document.querySelectorAll("#itemsBody tr")).map(row => ({
-        desc: row.querySelector(".desc").value,
-        parts: row.querySelector(".parts").value,
-        labor: row.querySelector(".labor").value,
-        qty: row.querySelector(".qty").value
-      })),
-      sig: canvas.toDataURL("image/png")
+      discount: v("discount"),
+      items: Array.from(document.querySelectorAll("#items tr")).map(r=>({
+        desc: r.querySelector(".desc").value,
+        qty: r.querySelector(".qty").value,
+        rate: r.querySelector(".rate").value
+      }))
     };
-    localStorage.setItem("moa_invoice_draft", JSON.stringify(data));
+    localStorage.setItem("moa_invoice_simple", JSON.stringify(data));
     alert("Draft saved on this device.");
   }
 
-  function loadDraft() {
-    const raw = localStorage.getItem("moa_invoice_draft");
-    if (!raw) { alert("No saved draft found on this device."); return; }
-    const data = JSON.parse(raw);
+  function loadDraft(){
+    const raw = localStorage.getItem("moa_invoice_simple");
+    if(!raw){ alert("No saved draft on this device."); return; }
+    const d = JSON.parse(raw);
 
-    set("invoiceNo", data.invoiceNo);
-    set("invoiceDate", data.invoiceDate);
-    set("status", data.status);
-    set("due", data.due);
+    set("invoiceNo", d.invoiceNo);
+    set("date", d.date);
+    set("custName", d.custName);
+    set("custPhone", d.custPhone);
+    set("vehicle", d.vehicle);
+    set("mileage", d.mileage);
+    set("notes", d.notes);
+    set("taxRate", d.taxRate);
+    set("fee", d.fee);
+    set("discount", d.discount);
 
-    set("custName", data.custName);
-    set("custPhone", data.custPhone);
-    set("custEmail", data.custEmail);
-    set("custAddress", data.custAddress);
-
-    set("vehicle", data.vehicle);
-    set("trim", data.trim);
-    set("vin", data.vin);
-    set("mileage", data.mileage);
-
-    set("notes", data.notes);
-    set("taxRate", data.taxRate);
-    set("fee", data.fee);
-
-    set("sigName", data.sigName);
-    set("sigDate", data.sigDate);
-    set("tech", data.tech);
-
-    // Rebuild items
-    const body = document.getElementById("itemsBody");
-    body.innerHTML = "";
-    data.items.forEach(it => {
+    const tbody = document.getElementById("items");
+    tbody.innerHTML = "";
+    (d.items || []).forEach(it=>{
       const tr = document.createElement("tr");
       tr.innerHTML = `
         <td><input class="desc" placeholder="Service description" /></td>
-        <td><input class="parts" placeholder="0.00" inputmode="decimal" /></td>
-        <td><input class="labor" placeholder="0.00" inputmode="decimal" /></td>
         <td class="num"><input class="qty" value="1" inputmode="numeric" /></td>
+        <td class="num"><input class="rate" placeholder="0.00" inputmode="decimal" /></td>
         <td class="num"><span class="lineTotal">$0.00</span> <button class="btn" type="button" onclick="removeRow(this)">Remove</button></td>
       `;
       tr.querySelector(".desc").value = it.desc || "";
-      tr.querySelector(".parts").value = it.parts || "";
-      tr.querySelector(".labor").value = it.labor || "";
       tr.querySelector(".qty").value = it.qty || "1";
-      body.appendChild(tr);
+      tr.querySelector(".rate").value = it.rate || "";
+      tbody.appendChild(tr);
     });
-
-    // Restore signature image
-    if (data.sig) {
-      const img = new Image();
-      img.onload = () => {
-        clearSignature();
-        // draw image scaled to canvas css size
-        const rect = canvas.getBoundingClientRect();
-        ctx.drawImage(img, 0, 0, rect.width, rect.height);
-      };
-      img.src = data.sig;
-    }
 
     recalc();
     alert("Draft loaded.");
   }
 
-  function clearDraft() {
-    localStorage.removeItem("moa_invoice_draft");
+  function clearDraft(){
+    localStorage.removeItem("moa_invoice_simple");
     alert("Saved draft cleared.");
   }
 
-  function v(id) { return document.getElementById(id).value; }
-  function set(id, val) { document.getElementById(id).value = val || ""; }
+  function v(id){ return document.getElementById(id).value; }
+  function set(id,val){ document.getElementById(id).value = val || ""; }
 
-  // Initial calc
-recalc();
+  recalc();
 </script>
-
-<div id="sigModal" class="sig-modal" aria-hidden="true">
-  <div class="sig-modal-bar">
-    <strong>Sign Here</strong>
-    <div style="display:flex; gap:10px;">
-      <button class="btn" type="button" onclick="clearSignature()">Clear</button>
-      <button class="btn primary" type="button" onclick="closeSigModal()">Done</button>
-    </div>
-  </div>
-
-  <div class="sig-modal-canvas-wrap">
-    <canvas id="sigModalCanvas"></canvas>
-  </div>
-
-  <div class="sig-modal-hint">Rotate back to portrait or tap Done when finished.</div>
-</div>
-
-
 </body>
 </html>
